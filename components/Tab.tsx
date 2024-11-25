@@ -1,15 +1,18 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PropsWithChildren } from "react";
+import { ComponentProps, PropsWithChildren } from "react";
 
-export function Tab({ children, href }: PropsWithChildren<{ href: string }>) {
+export function Tab({
+  children,
+  ...props
+}: PropsWithChildren<ComponentProps<typeof Link>>) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === props.href;
+
   return (
     <Link
-      prefetch={false}
-      href={href}
+      {...props}
       className={`${
         isActive
           ? "bg-gray-200 text-gray-800"
