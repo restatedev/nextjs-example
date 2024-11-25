@@ -8,6 +8,7 @@ export function Tab({ children, href }: PropsWithChildren<{ href: string }>) {
   const isActive = pathname === href;
   return (
     <Link
+      prefetch={false}
       href={href}
       className={`${
         isActive
