@@ -6,7 +6,7 @@ import { Input } from "@/components/Input";
 import { SubmitButton } from "@/components/SubmitButton";
 import { Badge } from "@/components/Badge";
 
-export default function () {
+export default function Client() {
   const {
     data: currentValue,
     mutate,

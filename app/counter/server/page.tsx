@@ -5,7 +5,7 @@ import { Input } from "@/components/Input";
 import { Badge } from "@/components/Badge";
 import { SubmitButton } from "@/components/SubmitButton";
 
-export default async function () {
+export default async function Server() {
   const counterValue = await counterClient.current();
 
   async function formAction(formData: FormData) {
