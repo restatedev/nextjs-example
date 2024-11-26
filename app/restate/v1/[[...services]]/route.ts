@@ -1,9 +1,4 @@
 import { endpoint } from "@/restate/endpoint";
+import { serveRestate } from "@/restate/serve";
 
-export async function POST(req: Request) {
-  return endpoint.handler().fetch(req);
-}
-
-export async function GET(req: Request) {
-  return endpoint.handler().fetch(req);
-}
+export const { GET, POST } = serveRestate(endpoint);

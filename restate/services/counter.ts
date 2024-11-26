@@ -4,20 +4,15 @@ import { COUNTER_OBJECT, COUNTER_STATE_NAME } from "./constants";
 export const counter = restate.object({
   ...COUNTER_OBJECT,
   handlers: {
-    add: restate.handlers.object.exclusive(
-      async (ctx: restate.ObjectContext, amount: number) => {
-        const current = await ctx.get<number>(COUNTER_STATE_NAME);
-        const updated = (current ?? 0) + amount;
-        ctx.set(COUNTER_STATE_NAME, updated);
-        return updated;
-      }
-    ),
-
-    current: restate.handlers.object.shared(
-      async (ctx: restate.ObjectSharedContext): Promise<number> => {
-        return (await ctx.get(COUNTER_STATE_NAME)) ?? 0;
-      }
-    ),
+    add: async (ctx: restate.ObjectContext, amount: number) => {
+      const current = await ctx.get<number>(COUNTER_STATE_NAME);
+      const updated = (current ?? 0) + amount;
+      ctx.set(COUNTER_STATE_NAME, updated);
+      return updated;
+    },
+    current: async (ctx: restate.ObjectSharedContext): Promise<number> => {
+      return (await ctx.get(COUNTER_STATE_NAME)) ?? 0;
+    },
   },
 });
 
