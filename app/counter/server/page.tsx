@@ -19,9 +19,9 @@ export default async function Server() {
 
   return (
     <Form action={formAction} className="flex flex-col gap-4">
-      <output className="font-medium text-sm">
+      <div className="font-medium text-sm">
         Current value: <Badge>{counterValue}</Badge>
-      </output>
+      </div>
       <Input
         type="number"
         name="amount"

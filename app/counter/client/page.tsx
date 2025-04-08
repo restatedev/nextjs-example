@@ -26,9 +26,9 @@ export default function Client() {
 
   return (
     <Form action={formAction} className="flex flex-col gap-4">
-      <output className="font-medium text-sm">
+      <div className="font-medium text-sm">
         Current value: <Badge>{isLoading ? "…" : currentValue}</Badge>
-      </output>
+      </div>
       <Input
         type="number"
         name="amount"
