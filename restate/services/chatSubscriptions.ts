@@ -15,14 +15,14 @@ export const chatSubscriptions = restate.object({
       );
     }),
     clearSubscription: restate.handlers.object.exclusive(
-      async (ctx, id: string) => {
+      async (ctx, ids: string[]) => {
         const subscribers =
           (await ctx.get<string[]>(SUBSCRIBERS_STATE_NAME)) ?? [];
         await ctx.set<string[]>(
           SUBSCRIBERS_STATE_NAME,
-          subscribers.filter((subscriberId) => subscriberId !== id)
+          subscribers.filter((subscriberId) => !ids.includes(subscriberId))
         );
-        await ctx.clear(id);
+        await Promise.all(ids.map((id) => ctx.clear(id)));
       }
     ),
     addSubscription: restate.handlers.object.exclusive(

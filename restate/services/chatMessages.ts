@@ -32,7 +32,7 @@ export const chatMessages = restate.object({
           timestamp,
         });
         await ctx.set<number>(LAST_MESSAGE_INDEX, nextMessageIndex);
-        await ctx.objectSendClient(chatMessages, ctx.key).updateSubscribers();
+        ctx.objectSendClient(chatMessages, ctx.key).updateSubscribers();
 
         return {
           content,
@@ -56,8 +56,10 @@ export const chatMessages = restate.object({
             .objectClient(chatMessages, ctx.key)
             .getMessages(subscribe.lastMessageIndex)
         );
-        await subscriptionClient.clearSubscription(ctx.key);
       }
+      await subscriptionClient.clearSubscription(
+        subscribers.map(({ id }) => id)
+      );
     }),
     subscribe: restate.handlers.object.shared(async (ctx, from: number) => {
       const { id, promise } = ctx.awakeable<{
@@ -65,7 +67,7 @@ export const chatMessages = restate.object({
         lastMessageIndex: number;
       }>();
 
-      await ctx
+      ctx
         .objectSendClient<ChatSubscription>(chatSubscriptions, ctx.key)
         .addSubscription({ id, lastMessageIndex: from });
 

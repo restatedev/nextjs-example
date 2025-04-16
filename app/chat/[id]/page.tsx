@@ -1,46 +1,52 @@
 "use client";
-import { ChatMessage, ChatMessages } from "@/restate/services/chatMessages";
-import { CHAT_MESSAGES_OBJECT } from "@/restate/services/constants";
+import { ChatMessage } from "@/restate/services/chatMessages";
 import Form from "next/form";
 import { useEffect, useState } from "react";
-import * as restate from "@restatedev/restate-sdk-clients";
 import { useParams } from "next/navigation";
 
 export default function Chat() {
   const { id } = useParams<{ id: string }>();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [client] = useState(() => {
-    const rs = restate.connect({ url: "http://localhost:8080" });
-
-    return rs.objectClient<ChatMessages>(CHAT_MESSAGES_OBJECT, id);
-  });
 
   useEffect(() => {
     let cancelled = false;
-    const abortController = new AbortController();
+    let abortController: AbortController;
+    let length = 0;
     const obtainAPIResponse = async () => {
-      const apiResponse = await fetch(`/api/chat/${id}/messages`, {
-        signal: abortController.signal,
-      });
+      abortController = new AbortController();
+      try {
+        const apiResponse = await fetch(
+          `/api/chat/${id}/messages?from=${length}`,
+          {
+            signal: abortController.signal,
+          }
+        );
 
-      if (!apiResponse.body) return;
+        if (!apiResponse.body) return;
 
-      const reader = apiResponse.body
-        .pipeThrough(new TextDecoderStream())
-        .getReader();
+        const reader = apiResponse.body
+          .pipeThrough(new TextDecoderStream())
+          .getReader();
 
-      while (true) {
-        const { value, done } = await reader.read();
+        while (true) {
+          const { value, done } = await reader.read();
+          console.log(value, done);
+          if (done) {
+            obtainAPIResponse();
+            break;
+          }
 
-        if (done) {
-          break;
+          if (value && !cancelled) {
+            setMessages((messages) => {
+              const newValue = [...messages, ...JSON.parse(value)];
+
+              length = newValue.length;
+              return newValue;
+            });
+          }
         }
-
-        if (value && !cancelled) {
-          setMessages((messages) => [...messages, ...JSON.parse(value)]);
-        }
-      }
+      } catch (error) {}
     };
     obtainAPIResponse();
 
@@ -52,9 +58,16 @@ export default function Chat() {
 
   const formAction = async (formData: FormData) => {
     if (String(formData.get("message"))) {
-      await client.send({
-        content: String(formData.get("message")),
-        sender: "me",
+      await fetch(`/api/chat/${id}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          content: String(formData.get("message")),
+          sender: "me",
+        }),
       });
     }
   };
